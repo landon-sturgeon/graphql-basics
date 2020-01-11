@@ -27,16 +27,16 @@ const demo_posts = [
     },
     {
         id: "2",
-        title: "title3",
-        body: "body3",
-        published: false,
+        title: "title2",
+        body: "body2",
+        published: true,
         author: "1"
     },
     {
         id: "3",
         title: "title3",
         body: "body3",
-        published: false,
+        published: true,
         author: "2"
     },
 ];
