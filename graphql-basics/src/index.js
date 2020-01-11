@@ -6,7 +6,7 @@ import uuidv4 from "uuid/v4";
 // Strings, Booleans, Ints, Floats, ID
 
 // Demo User Data
-const demo_users = [{
+let demo_users = [{
     id: "1",
     name: "landon",
     email: "landon@example.com",
@@ -24,7 +24,7 @@ const demo_users = [{
     age: 100
 }];
 
-const demo_posts = [
+let demo_posts = [
     {
         id: "1",
         title: "title1",
@@ -48,7 +48,7 @@ const demo_posts = [
     },
 ];
 
-const demo_comments = [
+let demo_comments = [
     {
         id: "1",
         text: "comment 1",
@@ -89,8 +89,11 @@ const typeDefs = `
 
     type Mutation {
         createUser(data: CreateUserInput): User!
+        deleteUser(id: ID!): User!
         createPost(data: CreatePostInput): Post!
+        deletePost(id: ID!): Post!
         createComment(data: CreateCommentInput): Comment!
+        deleteComment(id: ID!): Comment!
     }
 
     input CreateUserInput {
@@ -178,16 +181,45 @@ const resolvers = {
 
             if (emailTaken) {
                 throw new Error("Email taken.");
-            }
+            };
             
             const user = {
                 id: uuidv4(),
                 ...args.data
-            }
+            };
 
             demo_users.push(user);
 
             return user;
+        },
+        deleteUser(parent, args, ctx, info) {
+            const userIndex = demo_users.findIndex((user) => {
+                return user.id === args.id;
+            });
+
+            if (userIndex === -1) {
+                throw new Error("User does not exist");
+            };
+
+            const deletedUsers = demo_users.splice(userIndex, 1);
+
+            demo_posts = demo_posts.filter((post) => {
+                const match = post.author === args.id;
+
+                if (match) {
+                    demo_comments = demo_comments.filter((comment) => {
+                        return comment.post != post.id;
+                    });
+                };
+
+                return !match;
+            });
+
+            demo_comments = demo_comments.filter((comment) => {
+                return comment.author !== args.id;
+            });
+
+            return deletedUsers[0];
         },
         createPost(parent, args, cts, info) {
             const userExists = demo_users.some((user) => {
@@ -207,15 +239,30 @@ const resolvers = {
 
             return post;
         },
+        deletePost(parent, args, cts, info) {
+            const postIndex = demo_posts.findIndex((post) => {
+                return post.id === args.id;
+            });
+
+            if (postIndex === -1) {
+                throw new Error("Post not found");
+            };
+
+            const deletedPosts = demo_posts.splice(postIndex, 1);
+
+            demo_comments = demo_comments.filter((comment) => {
+                return comment.post !== args.id;
+            });
+
+            return deletedPosts[0];
+        },
         createComment(parent, args, cts, info) {
             const userExists = demo_users.some((user) => {
                 return user.id === args.data.author;
             });
-            console.log(userExists);
             const postExists = demo_posts.some((post) => {
                 return post.id === args.data.post && post.published;
             });
-            console.log(postExists);
 
             if (!userExists || !postExists) {
                 throw new Error("Unable to find user and post");
@@ -229,6 +276,19 @@ const resolvers = {
             demo_comments.push(comment);
 
             return comment;
+        },
+        deleteComment(parent, args, cts, info) {
+            const commentIndex = demo_comments.findIndex((comment) => {
+                return comment.id === args.id;
+            });
+
+            if (commentIndex === -1) {
+                throw new Error("Comment not found");
+            };
+
+            const deletedComments = demo_comments.splice(commentIndex, 1);
+
+            return deletedComments[0];
         }
     },
     Post: {
