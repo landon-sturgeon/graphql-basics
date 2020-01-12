@@ -4,29 +4,27 @@ type User {
   id: ID! @id
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
-  name: String!
-  email: String! @unique
-  posts: [Post!]! @relation(name: "PostToUser", onDelete: CASCADE)
-  comments: [Comment!]! @relation(name: "CommentToUser", onDelete: CASCADE)
+  username: String! @unique
+  reviews: [Review]! @relation(name: "ReviewsToUser", onDelete: CASCADE)
+  books: [Book]! @relation(name: "AuthorToBook", onDelete: SET_NULL)
 }
 
-type Post {
+type Book {
   id: ID! @id
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
   title: String!
-  body: String!
-  published: Boolean!
-  author: User! @relation(name: "PostToUser", onDelete: SET_NULL)
-  comments: [Comment!]! @relation(name: "CommentToPost", onDelete: CASCADE)
+  author: User! @relation(name: "AuthorToBook", onDelete: SET_NULL)
+  isbn: ID! @unique
+  reviews: [Review]! @relation(name: "ReviewsToBook", onDelete: CASCADE)
 }
 
-type Comment {
+type Review {
   id: ID! @id
   createdAt: DateTime! @createdAt
   updatedAt: DateTime! @updatedAt
-  text: String!
-  published: Boolean!
-  author: User! @relation(name: "CommentToUser", onDelete: SET_NULL)
-  post: Post! @relation(name: "CommentToPost", onDelete: SET_NULL)
+  text: String
+  rating: Float!
+  book: Book! @relation(name: "ReviewsToBook", onDelete: SET_NULL)
+  author: User! @relation(name: "ReviewsToUser", onDelete: SET_NULL)
 }
