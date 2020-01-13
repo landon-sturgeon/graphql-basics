@@ -1,38 +1,45 @@
 const Query = {
-    users(parent, args, { db }, info) {
-        if (!args.query) {
-            return db.demo_users
+    users(parent, args, { prisma }, info) {
+        const opArgs = {};
+
+        if (args.query) {
+            opArgs.where = {
+                OR: [{
+                    name_contains: args.query
+                }, {
+                    email_contains: args.query
+                }]
+            }
         };
 
-        return db.demo_users.filter((user) => {
-            return user.name.toLowerCase().includes(args.query.toLowerCase());
-        })
+        return prisma.query.users(opArgs, info);
     },
-    posts(parent, args, { db }, info) {
-        if (!args.query) {
-            return db.demo_posts;
+    posts(parent, args, { prisma }, info) {
+        const opArgs = {};
+
+        if (args.query) {
+            opArgs.where = {
+                OR: [{
+                    title_contains: args.query
+                }, {
+                    body_contains: args.query
+                }]
+            }
         }
-        return db.demo_posts.filter((post) => {
-            const isTitleMatch = post.title.toLowerCase().includes(args.query.toLowerCase());
-            const isBodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase());
-            return isTitleMatch || isBodyMatch;
-        });
+
+        return prisma.query.posts(opArgs, info);  
     },
-    comments(parent, args, { db }, info) {
-        if (!args.query) {
-            return db.demo_comments;
+    comments(parent, args, { prisma }, info) {
+        const opArgs = {};
+
+        if (args.query) {
+            opArgs.where = {
+                text_contains: args.query
+            }
         };
 
-        return db.demo_comments.filter((comment) => {
-            return comment.text.toLowerCase().includes(args.query.tolowercase());
-        });
-    },
-    me() {
-        return {
-            id: "092",
-            name: "Landon",
-            email: "landon@example.com",
-        };
+        return prisma.query.comments(opArgs, info);
     }
 };
 
+export default Query;

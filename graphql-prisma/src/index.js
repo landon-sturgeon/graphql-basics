@@ -3,12 +3,9 @@ import { GraphQLServer, PubSub } from "graphql-yoga";
 import db from "./db";
 import Comment from "./resolvers/comment";
 import Mutation from "./resolvers/mutation";
-import Post from "./resolvers/post";
 import Query from "./resolvers/query";
-import User from "./resolvers/user";
 import Subscription from "./resolvers/subscription";
-
-import "./prisma";
+import prisma from "./prisma";
 
 const pubsub = new PubSub();
 
@@ -17,17 +14,16 @@ const server = new GraphQLServer({
     resolvers: {
         Comment,
         Mutation,
-        Post,
         Query,
-        User,
         Subscription
     },
     context: {
         db: db,
-        pubsub: pubsub
+        pubsub: pubsub,
+        prisma: prisma
     }
 });
 
-server.start(() => {
-    console.log("The server is up");
+server.start(({port}) => {
+    console.log(`The server is up on port ${port}`);
 });
