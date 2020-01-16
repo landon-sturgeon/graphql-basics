@@ -27,6 +27,7 @@ type User {
     name: String!
     email: String!
     posts: [Post]!
+    password: String!
     comments: [Comment]!
 }
 
@@ -90,10 +91,10 @@ enum MutationType {
 
 type PostSubscriptionPayload {
     mutation: MutationType!
-    data: Post!
+    node: Post
 }
 
 type CommentSubscriptionPayload {
     mutation: MutationType!
-    data: Comment!
+    node: Comment
 }

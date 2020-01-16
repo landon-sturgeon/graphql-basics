@@ -47,7 +47,7 @@ const Mutation = {
             }
         }, info);
     },
-    async deletePost(parent, args, { pubsub }, info) {
+    async deletePost(parent, args, { prisma }, info) {
         const postExists = await prisma.exists.post({ id: args.id });
 
         if (!postExists) {
@@ -56,7 +56,7 @@ const Mutation = {
 
         return prisma.mutation.deletePost({ id: args.id });
     },
-    async updatePost(parent, args, { prisma, pubsub }, info) {
+    async updatePost(parent, args, { prisma }, info) {
         return prisma.mutation.updatePost({
             where: {
                 id: args.id
