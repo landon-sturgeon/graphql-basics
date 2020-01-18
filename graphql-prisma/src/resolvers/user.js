@@ -2,7 +2,8 @@ import getUserId from "../utils/getUserId";
 
 const User = {
     email(parent, args, { request }, info) {
-        const userId = getUser(request, false);
+        const userId = getUserId(request, false);
+        console.log(userId);
 
         if (userId && userId === parent.id) {
             return parent.email;

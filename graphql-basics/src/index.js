@@ -5,7 +5,7 @@ import Comment from "./resolvers/comment";
 import Mutation from "./resolvers/mutation";
 import Post from "./resolvers/post";
 import Query from "./resolvers/query";
-import User from "./resolvers/user";
+import User from "./resolvers/User";
 import Subscription from "./resolvers/subscription";
 
 const pubsub = new PubSub();
