@@ -1,6 +1,9 @@
 type Query {
     users(query: String): [User!]!
+    me: User!
     posts(query: String): [Post!]!
+    myPosts(query: String): [Post]!
+    post(id: ID!): Post!
     comments: [Comment!]!
 }
 
@@ -25,7 +28,7 @@ type Subscription {
 type User {
     id: ID!
     name: String!
-    email: String!
+    email: String
     posts: [Post]!
     password: String!
     comments: [Comment]!
