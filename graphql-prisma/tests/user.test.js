@@ -1,25 +1,75 @@
-import { getFirstName, isValidPassword } from "../src/utils/user";
+import "cross-fetch/polyfill";
+import ApolloBoost, { gql } from "apollo-boost";
+import bcrypt from "bcryptjs";
 
-test("Should return first name when given full name", () => {
-    const firstName = getFirstName("Landon Sturgeon");
+import prisma from "../src/prisma";
 
-    expect(firstName).toBe("Landon");
+const client = new ApolloBoost({
+    uri: "http://localhost:4000"
 });
 
-test("Should return first name when given first name", () => {
-    const firstName = getFirstName("Landon");
+beforeEach(async () => {
+    await prisma.mutation.deleteManyUsers();
+    const newUser = await prisma.mutation.createUser({
+        data: {
+            name: "jenn",
+            email: "jenn@example.com",
+            password: bcrypt.hashSync("Red098!@#$")
+        }
+    });
+    
+    await prisma.mutation.createPost({
+        data:{
+            title: "example post 1",
+            "body": "prisma post body 1",
+            "published": true,
+            author: {
+                connect: {
+                    id: newUser.id
+                }
+            }
+        }
+    });
 
-    expect(firstName).toBe("Landon");
+    await prisma.mutation.createPost({
+        data:{
+            title: "example post 2",
+            "body": "prisma post body 2",
+            "published": false,
+            author: {
+                connect: {
+                    id: newUser.id
+                }
+            }
+        }
+    });
 });
 
-test("Should reject password shorter than 8 characters", () => {
-    const isValid = isValidPassword("no");
+test("Should create a new user", async () => {
+    const createUser = gql`
+        mutation {
+            createUser(
+                data: {
+                    name: "landon"
+                    email: "landon@test.com"
+                    password: "mypass123"
+                }
+            ){
+                token,
+                user {
+                    id
+                }
+            }
+        }
+    `;
 
-    expect(isValid).toBe(false);
+    const response = await client.mutate({
+        mutation: createUser
+    });
+
+    const userExists = await prisma.exists.User({
+        id: response.data.createUser.user.id
+    });
+
+    expect(userExists).toBe(true);
 });
-
-test("Should reject password containing 'password'", () => {
-    const isValid = isValidPassword("password123");
-
-    expect(isValid).toBe(false);
-})
